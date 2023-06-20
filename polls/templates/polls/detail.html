@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>{{ question }}</h1>
-    <form action="{% url 'vote' %}" method="post">
+    <form action="{% url 'vote' question.id %}" method="post">
         {% csrf_token %}
         {{ form.choice }}        
         <button>Submit</button>

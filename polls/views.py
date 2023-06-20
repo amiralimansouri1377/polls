@@ -1,5 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import View
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from .models import Question, Choice
 from .form import ChoiceForm
 
@@ -27,7 +29,7 @@ def detail_poll(request, id):
 
 
 class VoteView(View):
-    def post(self, request):
+    def post(self, request, id):
         form = ChoiceForm(request.POST)
 
         if form.is_valid():
@@ -35,4 +37,14 @@ class VoteView(View):
             choice = Choice.objects.get(pk=choice_id)
             choice.vote_number += 1
             choice.save()
-            return render(request, "polls/detail.html")
+            return HttpResponseRedirect(reverse("result", args=[id]))
+        
+
+def result(request, id):
+    question = get_object_or_404(Question, pk=id)
+    choices = question.choices.order_by("-vote_number")
+
+    return render(request, "polls/result.html", {
+        "question": question,
+        "choices": choices
+    })
